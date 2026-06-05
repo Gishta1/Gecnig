@@ -46,14 +46,14 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Gecnig веб билд.loader.js";
+      var loaderUrl = buildUrl + "/Gecnig.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/Gecnig веб билд.data",
-        frameworkUrl: buildUrl + "/Gecnig веб билд.framework.js",
-        codeUrl: buildUrl + "/Gecnig веб билд.wasm",
+        dataUrl: buildUrl + "/Gecnig.data",
+        frameworkUrl: buildUrl + "/Gecnig.framework.js",
+        codeUrl: buildUrl + "/Gecnig.wasm",
         streamingAssetsUrl: "StreamingAssets",
-        companyName: "ООО Несуществующая компания",
+        companyName: "DefaultCompany",
         productName: "Gecnig",
         productVersion: "1.0",
         showBanner: unityShowBanner,
@@ -71,7 +71,7 @@
         canvas.style.height = "1080px";
       }
 
-      canvas.style.background = "url('" + buildUrl + "/Gecnig веб билд.jpg') center / cover";
+      canvas.style.background = "url('" + buildUrl + "/Gecnig.jpg') center / cover";
       document.querySelector("#unity-loading-bar").style.display = "block";
 
       var script = document.createElement("script");
