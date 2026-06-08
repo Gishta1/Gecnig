@@ -1,109 +1,144 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
+<html lang="en-us">
+  <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gecnig</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity Web Player | Gecnig</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
     <style>
-        /* ЛОГИЧЕСКАЯ ПРОВЕРКА 1: Сброс отступов и запрет прокрутки */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden; /* Критически важно: убирает полосы прокрутки */
-            background-color: #000000; /* Цвет фона во время загрузки */
-        }
-
-        /* ЛОГИЧЕСКАЯ ПРОВЕРКА 2: Контейнер должен занимать всё доступное пространство */
-        #unity-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-
-        /* ЛОГИЧЕСКАЯ ПРОВЕРКА 3: Canvas растягивается на весь контейнер */
-        #unity-canvas {
-            width: 100%;
-            height: 100%;
-            display: block; /* Критически важно: убирает нижний отступ в 3-4px, который браузеры добавляют inline-элементам */
-            background: #000000;
-        }
-
-        /* Стили для индикатора загрузки (по центру экрана) */
-        #unity-loading-bar {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            max-width: 80%;
-            text-align: center;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        #unity-progress-bar-empty {
-            width: 100%;
-            height: 20px;
-            background: #333;
-            border-radius: 10px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        #unity-progress-bar-full {
-            width: 0%;
-            height: 100%;
-            background: #4caf50;
-            transition: width 0.2s ease;
-        }
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: black;
+      }
+      #unity-container {
+        width: 100%;
+        height: 100%;
+      }
+      #unity-canvas {
+        width: 100% !important;
+        height: 100% !important;
+        display: none; /* скрыт до загрузки */
+      }
+      #unity-loading-bar {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+        font-family: sans-serif;
+      }
+      #unity-logo {
+        width: 200px;
+        height: 80px;
+        margin: 0 auto 20px auto;
+        background: url('TemplateData/unity-logo-dark.png') no-repeat center;
+        background-size: contain;
+      }
+      #unity-progress-bar-empty {
+        width: 200px;
+        height: 20px;
+        background: #444;
+        margin: 10px auto;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      #unity-progress-bar-full {
+        width: 0%;
+        height: 100%;
+        background: #09f;
+        transition: width 0.2s;
+      }
     </style>
-</head>
-<body>
-    <div id="unity-container">
-        <!-- Canvas, который будет растягиваться -->
-        <canvas id="unity-canvas" tabindex="-1"></canvas>
-        
-        <!-- Индикатор загрузки -->
-        <div id="unity-loading-bar">
-            <div id="unity-logo">Загрузка Gecnig...</div>
-            <div id="unity-progress-bar-empty">
-                <div id="unity-progress-bar-full"></div>
-            </div>
+  </head>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
         </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <div id="unity-footer">
+        <div id="unity-logo-title-footer"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">Gecnig</div>
+      </div>
     </div>
-
-    <!-- Скрипт загрузчика Unity -->
     <script>
-        var canvas = document.querySelector("#unity-canvas");
-        var loadingBar = document.querySelector("#unity-loading-bar");
-        var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var canvas = document.querySelector("#unity-canvas");
 
-        // ВНИМАНИЕ: Замените 'Build' на имя папки вашего билда, если оно отличается
-        var buildUrl = "Build";
-        var loaderUrl = buildUrl + "/index.loader.js"; // Или имя вашего .loader.js файла
-        var config = {
-            dataUrl: buildUrl + "/index.data",
-            frameworkUrl: buildUrl + "/index.framework.js",
-            codeUrl: buildUrl + "/index.wasm",
-            streamingAssetsUrl: "StreamingAssets",
-            companyName: "DefaultCompany",
-            productName: "Gecnig",
-            productVersion: "1.0",
-        };
+      function unityShowBanner(msg, type) {
+        var warningBanner = document.querySelector("#unity-warning");
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
 
-        var script = document.createElement("script");
-        script.src = loaderUrl;
-        script.onload = () => {
-            createUnityInstance(canvas, config, (progress) => {
-                progressBarFull.style.width = 100 * progress + "%";
-            }).then((unityInstance) => {
-                loadingBar.style.display = "none"; // Скрываем загрузку после завершения
-                // unityInstance.SetFullscreen(1); // Раскомментируйте, если нужно сразу включить полноэкранный режим браузера (F11)
-            }).catch((message) => {
-                alert(message);
-            });
-        };
-        document.body.appendChild(script);
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/Gecnig.loader.js";
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/Gecnig.data",
+        frameworkUrl: buildUrl + "/Gecnig.framework.js",
+        codeUrl: buildUrl + "/Gecnig.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "Gecnig",
+        productVersion: "1.0",
+        showBanner: unityShowBanner,
+      };
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        document.querySelector("#unity-container").className = "unity-mobile";
+        canvas.className = "unity-mobile";
+      } else {
+        canvas.style.width = "1920px";
+        canvas.style.height = "1080px";
+      }
+
+      canvas.style.background = "url('" + buildUrl + "/Gecnig.jpg') center / cover";
+      document.querySelector("#unity-loading-bar").style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+        }).then((unityInstance) => {
+          document.querySelector("#unity-loading-bar").style.display = "none";
+          document.querySelector("#unity-fullscreen-button").onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+
+      document.body.appendChild(script);
     </script>
-</body>
+  </body>
 </html>
