@@ -1,9 +1,9 @@
 const cacheName = "ООО Несуществующая компания-Gecnig-666";
 const contentToCache = [
-    "Build/Gecnig Web NotGit.loader.js",
-    "Build/Gecnig Web NotGit.framework.js",
-    "Build/Gecnig Web NotGit.data",
-    "Build/Gecnig Web NotGit.wasm",
+    "Build/Gecnig.loader.js",
+    "Build/Gecnig.framework.js",
+    "Build/Gecnig.data",
+    "Build/Gecnig.wasm",
     "TemplateData/style.css"
 
 ];
